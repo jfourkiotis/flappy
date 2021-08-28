@@ -6,6 +6,8 @@ static constexpr int SCREEN_HEIGHT = 600;
 static constexpr int FONT_SIZE = 20;
 static constexpr int GAP_SIZE = SCREEN_HEIGHT / 3;
 
+static Font FONT;
+
 enum class GameMode {
 	Menu,
 	Playing,
@@ -123,18 +125,24 @@ private:
 	bool can_flap_ = true;
 
 	static constexpr const char *WELCOME_TEXT = "Welcome to Flappy Dragon";
+	static constexpr const char *FLAP_TEXT = "Press SPACE to flap";
 	static constexpr const char *PLAY_GAME = "(P) Play Game";
 	static constexpr const char *PLAY_AGAIN = "(P) Play Again";
 	static constexpr const char *QUIT_GAME = "(Q) Quit Game";
 	static constexpr const char *YOU_ARE_DEAD_TEXT = "You're Dead!";
 
-	static int welcome_text_len() {
-		static int len = MeasureText(WELCOME_TEXT, FONT_SIZE);
+	static auto welcome_text_len() {
+		static auto len = MeasureTextEx(FONT, WELCOME_TEXT, FONT.baseSize, 2);
 		return len;
 	}
 
-	static int dead_text_len() {
-		static int len = MeasureText(YOU_ARE_DEAD_TEXT, FONT_SIZE);
+	static auto flap_text_len() {
+		static auto len = MeasureTextEx(FONT, FLAP_TEXT, FONT.baseSize, 2);
+		return len;
+	}
+
+	static auto dead_text_len() {
+		static auto len = MeasureTextEx(FONT, YOU_ARE_DEAD_TEXT, FONT.baseSize, 2);
 		return len;
 	}
 public:
@@ -148,10 +156,16 @@ public:
 		BeginDrawing();
 		ClearBackground(WHITE);
 
-		int loc = (SCREEN_WIDTH - welcome_text_len()) / 2;
-		DrawText(WELCOME_TEXT, loc, SCREEN_HEIGHT / 3, FONT_SIZE, BLACK);
-		DrawText(PLAY_GAME, loc, SCREEN_HEIGHT / 3 + FONT_SIZE, FONT_SIZE, BLACK);
-		DrawText(QUIT_GAME, loc, SCREEN_HEIGHT / 3 + FONT_SIZE * 2, FONT_SIZE, BLACK);
+		auto wtl = welcome_text_len();
+		float xloc = (SCREEN_WIDTH - wtl.x) / 2.0;
+		Vector2 fpos = { xloc, SCREEN_HEIGHT / 3.0 };
+		DrawTextEx(FONT, WELCOME_TEXT, fpos, FONT.baseSize, 2, MAROON);
+
+		fpos.y += wtl.y;
+		DrawTextEx(FONT, PLAY_GAME   , fpos, FONT.baseSize, 2, MAROON);
+
+		fpos.y += wtl.y;
+		DrawTextEx(FONT, QUIT_GAME   , fpos, FONT.baseSize, 2, MAROON);
 		EndDrawing();
 
 		if (IsKeyDown(KEY_P)) {
@@ -164,11 +178,16 @@ public:
 	void on_play() {
 		BeginDrawing();
 		ClearBackground(WHITE);
-		DrawText("Press SPACE to flap", 10, 10, FONT_SIZE, BLACK);
+
+		auto ftl = flap_text_len();
+		Vector2 fpos = { 10.0, 10.0 };
+		DrawTextEx(FONT, FLAP_TEXT, fpos, FONT.baseSize, 2, MAROON);
 
 		static char score_buffer[128];
 		sprintf(score_buffer, "Score: %d", score_);
-		DrawText(score_buffer, 10, 30, FONT_SIZE, BLACK);
+
+		fpos.y += ftl.y;
+		DrawTextEx(FONT, score_buffer, fpos, FONT.baseSize, 2, MAROON);
 
 		auto frame_time = GetFrameTime();
 		player_.physics(frame_time);
@@ -194,10 +213,16 @@ public:
 	void on_died() {
 		BeginDrawing();
 		ClearBackground(WHITE);
-		int loc = (SCREEN_WIDTH - dead_text_len()) / 2;
-		DrawText(YOU_ARE_DEAD_TEXT, loc, SCREEN_HEIGHT / 3, FONT_SIZE, BLACK);
-		DrawText(PLAY_AGAIN, loc, SCREEN_HEIGHT / 3 + FONT_SIZE, FONT_SIZE, BLACK);
-		DrawText(QUIT_GAME, loc, SCREEN_HEIGHT / 3 + FONT_SIZE * 2, FONT_SIZE, BLACK);
+
+		auto dtl = dead_text_len();
+		Vector2 loc = { (SCREEN_WIDTH - dtl.x) / 2, SCREEN_HEIGHT / 3.0};
+		DrawTextEx(FONT, YOU_ARE_DEAD_TEXT, loc, FONT.baseSize, 2, MAROON);
+
+		loc.y += dtl.y;
+		DrawTextEx(FONT, PLAY_AGAIN, loc, FONT.baseSize, 2, MAROON);
+
+		loc.y += dtl.y;
+		DrawTextEx(FONT, QUIT_GAME, loc, FONT.baseSize, 2, MAROON);
 		EndDrawing();
 
 		if (IsKeyDown(KEY_P)) {
@@ -219,6 +244,8 @@ int main() {
 	SetTargetFPS(60);
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Flappy Dragon");
 
+	FONT = LoadFont("../resources/pixantiqua.fnt");
+
 	State state;
 	bool quit = false;
 	while (!WindowShouldClose() && !quit) {
@@ -238,6 +265,7 @@ int main() {
 			break;
 		}
 	}
+	UnloadFont(FONT);
 	CloseWindow();
 	return 0;
 }
