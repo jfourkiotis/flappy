@@ -6,6 +6,7 @@ static constexpr int SCREEN_HEIGHT = 600;
 static constexpr int FONT_SIZE = 20;
 static constexpr int GAP_SIZE = SCREEN_HEIGHT / 3;
 static constexpr Color TEXT_COLOR = MAROON;
+static constexpr int PLAYER_RADIUS = 15;
 
 static Font FONT;
 
@@ -43,7 +44,7 @@ public:
 	}
 
 	void render() {
-		DrawText("@", 0, pos.y, 20, BLACK);
+		DrawCircle(PLAYER_RADIUS, pos.y, PLAYER_RADIUS, RED);
 	}
 
 	void physics(float dt) {
@@ -75,6 +76,8 @@ public:
 
 class Obstacle final {
 private:
+	static constexpr int OBSTACLE_WIDTH = SCREEN_WIDTH / 20;
+	static constexpr int GROUND_HEIGHT = 15;
 	int x;
 	int gap;
 	int size;
@@ -93,25 +96,19 @@ public:
 		const int half_size = size / 2;
 		
 		// top
-		for (int i = 0; i <= gap - half_size; ++i) {
-			DrawText("#", screen_x, i, FONT_SIZE, BLUE);
-		}
+		DrawRectangle(screen_x, 0, OBSTACLE_WIDTH, gap - half_size, BLUE);
 
 		// bottom
-		for (int i = gap + half_size; i < SCREEN_HEIGHT; ++i) {
-			DrawText("#", screen_x, i, FONT_SIZE, BLUE);
-		}
-
-		for (int i = 0; i < SCREEN_WIDTH; ++i) 
-			DrawText("#", i, SCREEN_HEIGHT - 15, FONT_SIZE, DARKGREEN);
+		DrawRectangle(screen_x, gap+half_size, OBSTACLE_WIDTH, SCREEN_HEIGHT - gap - half_size, BLUE);
+		DrawRectangle(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT, DARKGREEN);
 	}
 
 	bool is_hit(const Player &player) const {
-		const int half_size = size / 2;
-		const bool x_matches = static_cast<int>(player.pos.x) == x;
-		const bool above = static_cast<int>(player.pos.y) < gap - half_size;
-		const bool below = static_cast<int>(player.pos.y) > gap + half_size;
-		return x_matches && (above || below);
+		const float half_size = size / 2.0;
+		Rectangle upper = { 1.0f * x, 0.0, OBSTACLE_WIDTH, gap - half_size };
+		Rectangle lower = { 1.0f * x, gap + half_size, OBSTACLE_WIDTH, SCREEN_HEIGHT - gap - half_size};
+		return CheckCollisionCircleRec(player.pos, PLAYER_RADIUS, upper) ||
+		       CheckCollisionCircleRec(player.pos, PLAYER_RADIUS, lower);
 	}
 
 	friend class State;
