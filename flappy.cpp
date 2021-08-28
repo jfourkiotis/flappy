@@ -5,6 +5,7 @@ static constexpr int SCREEN_WIDTH = 800;
 static constexpr int SCREEN_HEIGHT = 600;
 static constexpr int FONT_SIZE = 20;
 static constexpr int GAP_SIZE = SCREEN_HEIGHT / 3;
+static constexpr Color TEXT_COLOR = MAROON;
 
 static Font FONT;
 
@@ -159,13 +160,13 @@ public:
 		auto wtl = welcome_text_len();
 		float xloc = (SCREEN_WIDTH - wtl.x) / 2.0;
 		Vector2 fpos = { xloc, SCREEN_HEIGHT / 3.0 };
-		DrawTextEx(FONT, WELCOME_TEXT, fpos, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, WELCOME_TEXT, fpos, FONT.baseSize, 2, TEXT_COLOR);
 
 		fpos.y += wtl.y;
-		DrawTextEx(FONT, PLAY_GAME   , fpos, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, PLAY_GAME   , fpos, FONT.baseSize, 2, TEXT_COLOR);
 
 		fpos.y += wtl.y;
-		DrawTextEx(FONT, QUIT_GAME   , fpos, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, QUIT_GAME   , fpos, FONT.baseSize, 2, TEXT_COLOR);
 		EndDrawing();
 
 		if (IsKeyDown(KEY_P)) {
@@ -181,13 +182,13 @@ public:
 
 		auto ftl = flap_text_len();
 		Vector2 fpos = { 10.0, 10.0 };
-		DrawTextEx(FONT, FLAP_TEXT, fpos, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, FLAP_TEXT, fpos, FONT.baseSize, 2, TEXT_COLOR);
 
 		static char score_buffer[128];
 		sprintf(score_buffer, "Score: %d", score_);
 
 		fpos.y += ftl.y;
-		DrawTextEx(FONT, score_buffer, fpos, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, score_buffer, fpos, FONT.baseSize, 2, TEXT_COLOR);
 
 		auto frame_time = GetFrameTime();
 		player_.physics(frame_time);
@@ -216,13 +217,13 @@ public:
 
 		auto dtl = dead_text_len();
 		Vector2 loc = { (SCREEN_WIDTH - dtl.x) / 2, SCREEN_HEIGHT / 3.0};
-		DrawTextEx(FONT, YOU_ARE_DEAD_TEXT, loc, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, YOU_ARE_DEAD_TEXT, loc, FONT.baseSize, 2, TEXT_COLOR);
 
 		loc.y += dtl.y;
-		DrawTextEx(FONT, PLAY_AGAIN, loc, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, PLAY_AGAIN, loc, FONT.baseSize, 2, TEXT_COLOR);
 
 		loc.y += dtl.y;
-		DrawTextEx(FONT, QUIT_GAME, loc, FONT.baseSize, 2, MAROON);
+		DrawTextEx(FONT, QUIT_GAME, loc, FONT.baseSize, 2, TEXT_COLOR);
 		EndDrawing();
 
 		if (IsKeyDown(KEY_P)) {
